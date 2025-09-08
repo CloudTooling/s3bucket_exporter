@@ -1,190 +1,190 @@
 name: CI
 
 on:
-  pull_request:
-  merge_group:
-  push:
-    branches:
-      - develop
-    tags:
-      - '*'
+    pull_request:
+    merge_group:
+    push:
+        branches:
+            - develop
+        tags:
+            - '*'
 
 jobs:
-  Build:
-    runs-on: ubuntu-latest
-    steps:
+    Build:
+        runs-on: ubuntu-latest
+        steps:
 
-      - name: Check out repository
-        uses: actions/checkout@v3
+            -   name: Check out repository
+                uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.20'
+            -   name: Set up Go
+                uses: actions/setup-go@v4
+                with:
+                    go-version: '1.20'
 
-      - name: Build
-        run: go build -v
+            -   name: Build
+                run: go build -v
 
-      - name: Test
-        run: |
-          go test -coverprofile=./cov-report.out ./...
-          # go tool cover -html=cov-report.out -o coverage-report.html
-          go test -race -coverprofile=coverage.out -covermode=atomic
+            -   name: Test
+                run: |
+                    go test -coverprofile=./cov-report.out ./...
+                    # go tool cover -html=cov-report.out -o coverage-report.html
+                    go test -race -coverprofile=coverage.out -covermode=atomic
 
-      - name: Cache test coverage report
-        uses: actions/cache@v3
-        id: restore-test-coverage-report
-        with:
-          path: ./cov-report.out
-          key: ${{ github.sha }}
+            -   name: Cache test coverage report
+                uses: actions/cache@v3
+                id: restore-test-coverage-report
+                with:
+                    path: ./cov-report.out
+                    key: ${{ github.sha }}
 
-  Go-Sec:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
+    Go-Sec:
+        runs-on: ubuntu-latest
+        steps:
+            -   name: Checkout Source
+                uses: actions/checkout@v3
 
-      - name: Install Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.20.x
+            -   name: Install Go
+                uses: actions/setup-go@v3
+                with:
+                    go-version: 1.20.x
 
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: -no-fail -exclude-dir=\.*test\.* -fmt=sonarqube -out=./gosec-report.json -stdout ./...
-          # args: -exclude=G204,G301,G302,G304,G306 -exclude-dir=\.*test\.* ./...
-          # args: -no-fail -exclude-dir=\.*test\.* --verbose sonar -out=./gosec-report.json ./...
+            -   name: Run Gosec Security Scanner
+                uses: securego/gosec@master
+                with:
+                    args: -no-fail -exclude-dir=\.*test\.* -fmt=sonarqube -out=./gosec-report.json -stdout ./...
+                    # args: -exclude=G204,G301,G302,G304,G306 -exclude-dir=\.*test\.* ./...
+                    # args: -no-fail -exclude-dir=\.*test\.* --verbose sonar -out=./gosec-report.json ./...
 
-      - name: Cache gosec report
-        uses: actions/cache@v3
-        id: restore-gosec-report
-        with:
-          path: ./gosec-report.json
-          key: ${{ github.sha }}
+            -   name: Cache gosec report
+                uses: actions/cache@v3
+                id: restore-gosec-report
+                with:
+                    path: ./gosec-report.json
+                    key: ${{ github.sha }}
 
 
-  SonarCloud:
-    runs-on: ubuntu-latest
-    needs: [Static-Check, Go-Sec, Builds]
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
+    SonarCloud:
+        runs-on: ubuntu-latest
+        needs: [ Static-Check, Go-Sec, Build ]
+        steps:
+            -   name: Checkout Source
+                uses: actions/checkout@v3
 
-      - name: Set up Go
-        uses: actions/setup-go@v3
-        with:
-          go-version: 1.20.x
+            -   name: Set up Go
+                uses: actions/setup-go@v3
+                with:
+                    go-version: 1.20.x
 
-      - uses: actions/cache@v3
-        id: restore-gosec-report
-        with:
-          path: ./gosec-report.json
-          key: ${{ github.sha }}
+            -   uses: actions/cache@v3
+                id: restore-gosec-report
+                with:
+                    path: ./gosec-report.json
+                    key: ${{ github.sha }}
 
-      - uses: actions/cache@v3
-        id: restore-golangci-lint-report
-        with:
-          path: ./golangci-report.xml
-          key: ${{ github.sha }}
+            -   uses: actions/cache@v3
+                id: restore-golangci-lint-report
+                with:
+                    path: ./golangci-report.xml
+                    key: ${{ github.sha }}
 
-      - uses: actions/cache@v3
-        id: restore-test-coverage-report
-        with:
-          path: ./cov-report.out
-          key: ${{ github.sha }}
+            -   uses: actions/cache@v3
+                id: restore-test-coverage-report
+                with:
+                    path: ./cov-report.out
+                    key: ${{ github.sha }}
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v1.9.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+            -   name: SonarCloud Scan
+                uses: SonarSource/sonarcloud-github-action@v1.9.1
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-  Container:
-    name: Build Container Image
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    Container:
+        name: Build Container Image
+        runs-on: ubuntu-latest
+        steps:
+            -   uses: actions/checkout@v4
 
-      - name: Write version vars
-        id: version-vars
-        run: |
-          BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
-          BRANCH=${GITHUB_REF_NAME#v}
-          APP_VERSION=$(cat config.json | jq -r ".version")
-          echo Version: $APP_VERSION
-          echo "VERSION=$APP_VERSION" >> $GITHUB_ENV
-          echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
-          echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
+            -   name: Write version vars
+                id: version-vars
+                run: |
+                    BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+                    BRANCH=${GITHUB_REF_NAME#v}
+                    APP_VERSION=$(cat config.json | jq -r ".version")
+                    echo Version: $APP_VERSION
+                    echo "VERSION=$APP_VERSION" >> $GITHUB_ENV
+                    echo "APP_VERSION=$APP_VERSION" >> $GITHUB_ENV
+                    echo "BUILD_DATE=$BUILD_DATE" >> $GITHUB_ENV
 
-      - name: Build Container Image
-        id: build-image
-        uses: docker/build-push-action@v6
-        with:
-          push: false
-          tags: |
-            cloudtooling/s3bucket-exporter:next
-            cloudtooling/s3bucket-exporter:${{github.run_id }}
-            cloudtooling/s3bucket-exporter:${{env.APP_VERSION}}_rc
-          build-args: |
-            BUILD_DATE=${{env.BUILD_DATE}}
-            APP_VERSION=${{env.APP_VERSION}}
+            -   name: Build Container Image
+                id: build-image
+                uses: docker/build-push-action@v6
+                with:
+                    push: false
+                    tags: |
+                        cloudtooling/s3bucket-exporter:next
+                        cloudtooling/s3bucket-exporter:${{github.run_id }}
+                        cloudtooling/s3bucket-exporter:${{env.APP_VERSION}}_rc
+                    build-args: |
+                        BUILD_DATE=${{env.BUILD_DATE}}
+                        APP_VERSION=${{env.APP_VERSION}}
 
-      - name: Run tests in container
-        id: run-tests
-        run: |
-          docker run -v $(pwd):/build --entrypoint "/build/.bin/tests.sh" cloudtooling/s3bucket-exporter:${{github.run_id }}
+            -   name: Run tests in container
+                id: run-tests
+                run: |
+                    docker run -v $(pwd):/build --entrypoint "/build/.bin/tests.sh" cloudtooling/s3bucket-exporter:${{github.run_id }}
 
-      - name: Log in to GitHub container registry
-        uses: docker/login-action@v3
-        with:
-          username: ${{ vars.DOCKER_HUB_USER}}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-        if: github.ref == 'refs/heads/develop'
+            -   name: Log in to GitHub container registry
+                uses: docker/login-action@v3
+                with:
+                    username: ${{ vars.DOCKER_HUB_USER}}
+                    password: ${{ secrets.DOCKER_HUB_TOKEN }}
+                if: github.ref == 'refs/heads/develop'
 
-      - name: Deploy Container Image
-        id: push-to-dockerhub-release
-        run: |
-          docker push cloudtooling/s3bucket-exporter:next
-          docker push cloudtooling/s3bucket-exporter:${{env.APP_VERSION}}_rc
-        if: github.ref == 'refs/heads/develop'
+            -   name: Deploy Container Image
+                id: push-to-dockerhub-release
+                run: |
+                    docker push cloudtooling/s3bucket-exporter:next
+                    docker push cloudtooling/s3bucket-exporter:${{env.APP_VERSION}}_rc
+                if: github.ref == 'refs/heads/develop'
 
-  CodeCov:
-    runs-on: ubuntu-latest
-    needs: [Build]
-    steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
+    CodeCov:
+        runs-on: ubuntu-latest
+        needs: [ Build ]
+        steps:
+            -   name: Checkout Source
+                uses: actions/checkout@v3
 
-      - uses: actions/cache@v3
-        id: restore-test-coverage-report
-        with:
-          path: ./cov-report.out
-          key: ${{ github.sha }}
+            -   uses: actions/cache@v3
+                id: restore-test-coverage-report
+                with:
+                    path: ./cov-report.out
+                    key: ${{ github.sha }}
 
-      - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: cov-report.out
-          flags: unittests
-          verbose: true
+            -   name: Upload coverage reports to Codecov
+                uses: codecov/codecov-action@v3
+                with:
+                    token: ${{ secrets.CODECOV_TOKEN }}
+                    files: cov-report.out
+                    flags: unittests
+                    verbose: true
 
-  Build-results:
-    name: Build results
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    needs:
-      - CodeCov
-      - Go-Sec
-      - Container
-    steps:
-      - run: exit 1
-        # see https://stackoverflow.com/a/67532120/4907315
-        if: >-
-          ${{
+    Build-results:
+        name: Build results
+        if: ${{ always() }}
+        runs-on: ubuntu-latest
+        needs:
+            - CodeCov
+            - Go-Sec
+            - Container
+        steps:
+            -   run: exit 1
+                # see https://stackoverflow.com/a/67532120/4907315
+                if: >-
+                    ${{
 
-               contains(needs.*.result, 'failure')
-            || contains(needs.*.result, 'cancelled')
-            || contains(needs.*.result, 'skipped')
-            }}
+                         contains(needs.*.result, 'failure')
+                      || contains(needs.*.result, 'cancelled')
+                      || contains(needs.*.result, 'skipped')
+                      }}
