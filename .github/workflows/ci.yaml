@@ -175,7 +175,7 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-latest
     needs:
-      - Build
+      - Builds
       - Go-Sec
       - Container
       - CodeCov
