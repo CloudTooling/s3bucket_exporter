@@ -4,7 +4,7 @@ s3bucket_exporter collects informations about size and object list about all the
 
 ## Badges
 
-[![Build](https://github.com/CloudTooling/s3bucket-exporter/actions/workflows/build.yml/badge.svg)](https://github.com/CloudTooling/s3bucket-exporter/actions/workflows/build.yml)
+[![Build](https://github.com/CloudTooling/s3bucket-exporter/actions/workflows/ci.yml/badge.svg)](https://github.com/CloudTooling/s3bucket-exporter/actions/workflows/ci.yml)
 [![Docker Pulls](https://img.shields.io/docker/pulls/cloudtooling/s3bucket-exporter)](https://hub.docker.com/r/cloudtooling/s3bucket-exporter)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=CloudTooling_s3bucket_exporter&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=CloudTooling_s3bucket_exporter)
 
