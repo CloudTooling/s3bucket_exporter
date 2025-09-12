@@ -11,8 +11,8 @@ on:
 
 jobs:
     Build:
-        name: Build and Test on ${{ matrix.python }} and ${{ matrix.os }}
-        runs-on: ${{ matrix.os }}
+        name: Build and Test
+        runs-on: ubuntu-latest
         steps:
             -   uses: actions/checkout@v4
             -   name: Set up Go
@@ -83,10 +83,10 @@ jobs:
                     tags: |
                         cloudtooling/s3bucket-exporter:next
                         cloudtooling/s3bucket-exporter:${{github.run_id }}
-                        cloudtooling/s3bucket-exporter:${{env.APP_VERSION}}_rc
+                        cloudtooling/s3bucket-exporter:${{ github.event.inputs.releaseversion }}_rc
                     build-args: |
                         BUILD_DATE=${{env.BUILD_DATE}}
-                        APP_VERSION=${{env.APP_VERSION}}
+                        APP_VERSION=${{ github.event.inputs.releaseversion }}
 
             -   name: Log in to GitHub container registry
                 uses: docker/login-action@v3
@@ -99,7 +99,7 @@ jobs:
                 id: push-to-dockerhub-release
                 run: |
                     docker push cloudtooling/s3bucket-exporter:next
-                    docker push cloudtooling/s3bucket-exporter:${{env.APP_VERSION}}_rc
+                    docker push cloudtooling/s3bucket-exporter:${{ github.event.inputs.releaseversion }}_rc
                 if: github.ref == 'refs/heads/develop'
 
             -   name: Adding release notes
