@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: frogbot
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
