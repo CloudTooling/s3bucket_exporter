@@ -32,7 +32,7 @@ jobs:
                     go test -race -coverprofile=coverage.out -covermode=atomic
 
             -   name: Cache test coverage report
-                uses: actions/cache@v5
+                uses: actions/cache@v6
                 id: restore-test-coverage-report
                 with:
                     path: ./cov-report.out
@@ -64,7 +64,7 @@ jobs:
                     # --timeout 5m --out-format checkstyle:golangci-report.xml -issues-exit-code 0
 
             -   name: Cache golangci-lint report
-                uses: actions/cache@v3
+                uses: actions/cache@v6
                 id: restore-golangci-lint-report
                 with:
                     path: ./golangci-report.xml
@@ -89,7 +89,7 @@ jobs:
                     # args: -no-fail -exclude-dir=\.*test\.* --verbose sonar -out=./gosec-report.json ./...
 
             -   name: Cache gosec report
-                uses: actions/cache@v5
+                uses: actions/cache@v6
                 id: restore-gosec-report
                 with:
                     path: ./gosec-report.json
@@ -108,19 +108,19 @@ jobs:
                 with:
                     go-version: 1.26.x
 
-            -   uses: actions/cache@v5
+            -   uses: actions/cache@v6
                 id: restore-gosec-report
                 with:
                     path: ./gosec-report.json
                     key: ${{ github.sha }}
 
-            -   uses: actions/cache@v5
+            -   uses: actions/cache@v6
                 id: restore-golangci-lint-report
                 with:
                     path: ./golangci-report.xml
                     key: ${{ github.sha }}
 
-            -   uses: actions/cache@v5
+            -   uses: actions/cache@v6
                 id: restore-test-coverage-report
                 with:
                     path: ./cov-report.out
@@ -183,7 +183,7 @@ jobs:
             -   name: Checkout Source
                 uses: actions/checkout@v6
 
-            -   uses: actions/cache@v5
+            -   uses: actions/cache@v6
                 id: restore-test-coverage-report
                 with:
                     path: ./cov-report.out
