@@ -15,7 +15,7 @@ jobs:
         steps:
 
             -   name: Check out repository
-                uses: actions/checkout@v6
+                uses: actions/checkout@v7
 
             -   name: Set up Go
                 uses: actions/setup-go@v6
@@ -42,7 +42,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Source
-                uses: actions/checkout@v6
+                uses: actions/checkout@v7
 
             -   name: Install Go
                 uses: actions/setup-go@v6
@@ -74,7 +74,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout Source
-                uses: actions/checkout@v6
+                uses: actions/checkout@v7
 
             -   name: Install Go
                 uses: actions/setup-go@v6
@@ -101,7 +101,7 @@ jobs:
         needs: [ Static-Check, Go-Sec, Build ]
         steps:
             -   name: Checkout Source
-                uses: actions/checkout@v6
+                uses: actions/checkout@v7
 
             -   name: Set up Go
                 uses: actions/setup-go@v6
@@ -136,7 +136,7 @@ jobs:
         name: Build Container Image
         runs-on: ubuntu-latest
         steps:
-            -   uses: actions/checkout@v6
+            -   uses: actions/checkout@v7
 
             -   name: Write version vars
                 id: version-vars
@@ -181,7 +181,7 @@ jobs:
         needs: [ Build ]
         steps:
             -   name: Checkout Source
-                uses: actions/checkout@v6
+                uses: actions/checkout@v7
 
             -   uses: actions/cache@v6
                 id: restore-test-coverage-report
@@ -202,7 +202,7 @@ jobs:
 
         steps:
             -   name: Checkout tree
-                uses: actions/checkout@v6
+                uses: actions/checkout@v7
 
             -   name: Run FOSSA scan and upload build data
                 uses: fossa-contrib/fossa-action@v3
